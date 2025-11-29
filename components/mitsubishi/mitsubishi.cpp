@@ -141,10 +141,12 @@ namespace esphome
                     break;
                 case climate::CLIMATE_SWING_VERTICAL:
                     this->ac_.setSwingV(kMitsubishi112SwingVAuto);
-                    this->ac_.setSwingH(kMitsubishi112SwingHMiddle);
+                    //this->ac_.setSwingH(kMitsubishi112SwingHMiddle);
+                    this->ac_.setSwingH(this->default_h_direction);
                     break;
                 case climate::CLIMATE_SWING_HORIZONTAL:
-                    this->ac_.setSwingV(kMitsubishi112SwingVMiddle);
+                    //this->ac_.setSwingV(kMitsubishi112SwingVMiddle);
+                    this->ac_.setSwingV(this->default_v_direction);
                     this->ac_.setSwingH(kMitsubishi112SwingHAuto);
                     break;
                 case climate::CLIMATE_SWING_BOTH:
