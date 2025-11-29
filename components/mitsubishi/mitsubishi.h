@@ -17,8 +17,15 @@ namespace esphome
         public:
         MitsubishiClimate()
                 : ClimateIR(16, 30, 1.0f, true, false,
-                            {climate::CLIMATE_FAN_AUTO, climate::CLIMATE_FAN_LOW, climate::CLIMATE_FAN_MEDIUM, climate::CLIMATE_FAN_HIGH},
+                            {climate::CLIMATE_FAN_AUTO, climate::CLIMATE_FAN_QUIET, climate::CLIMATE_FAN_LOW, climate::CLIMATE_FAN_MEDIUM, climate::CLIMATE_FAN_HIGH},
                             {climate::CLIMATE_SWING_OFF, climate::CLIMATE_SWING_VERTICAL, climate::CLIMATE_SWING_HORIZONTAL, climate::CLIMATE_SWING_BOTH}) {}
+/*
+                : ClimateIR(16, 30, 1.0f, true, true,
+                            {climate::CLIMATE_FAN_AUTO, climate::CLIMATE_FAN_LOW, climate::CLIMATE_FAN_MEDIUM, climate::CLIMATE_FAN_HIGH, climate::CLIMATE_FAN_QUIET},
+                            {climate::CLIMATE_SWING_OFF, climate::CLIMATE_SWING_VERTICAL}) {}
+*/
+
+                                
 /*
 
 esphome::climate_ir::ClimateIR::ClimateIR	(	
@@ -34,11 +41,31 @@ climate::ClimatePresetMask	presets = climate::ClimatePresetMask() )
 */
             void setup() override;
 
+            void set_verticle_swing(uint8_t position);
+            void set_horizontal_swing(uint8_t position);
+/*
+const uint8_t kMitsubishi112SwingVLowest =               0b101;
+const uint8_t kMitsubishi112SwingVLow =                  0b100;
+const uint8_t kMitsubishi112SwingVMiddle =               0b011;
+const uint8_t kMitsubishi112SwingVHigh =                 0b010;
+const uint8_t kMitsubishi112SwingVHighest =              0b001;
+const uint8_t kMitsubishi112SwingVAuto =                 0b111;
+
+const uint8_t kMitsubishi112SwingHLeftMax =              0b0001;
+const uint8_t kMitsubishi112SwingHLeft =                 0b0010;
+const uint8_t kMitsubishi112SwingHMiddle =               0b0011;
+const uint8_t kMitsubishi112SwingHRight =                0b0100;
+const uint8_t kMitsubishi112SwingHRightMax =             0b0101;
+const uint8_t kMitsubishi112SwingHWide =                 0b1000;
+const uint8_t kMitsubishi112SwingHAuto =                 0b1100;
+*/        
+
         protected:
             void transmit_state() override;
             void apply_state();
 
             IRMitsubishi112 ac_ = IRMitsubishi112(255); // pin is not used
+            //IRMitsubishi112 ac_ = IRMitsubishi112(4);
         };
 
     } // namespace mitsubishi

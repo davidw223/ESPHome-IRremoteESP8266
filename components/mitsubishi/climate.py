@@ -15,4 +15,4 @@ async def to_code(config):
     ir_remote_base.load_ir_remote()
 
     var = await climate_ir.new_climate_ir(config)
-    cg.add(var.set_model(config[CONF_MODEL]))
+    #cg.add(var.set_model(config[CONF_MODEL]))

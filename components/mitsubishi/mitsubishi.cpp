@@ -12,24 +12,14 @@
 #include "esphome.h"
 #include "ir_Mitsubishi.h"
 #include "mitsubishi.h"
+#include "IRremoteESP8266.h"
+#include "IRsend.h"
 
 namespace esphome
 {
-    namespace panasonic
+    namespace mitsubishi
     {
         // copied from ir_Mitsubishi.cpp
-
-        /*
-        const uint16_t kPanasonicHdrMark = 3456;
-        const uint16_t kPanasonicHdrSpace = 1728;
-        const uint16_t kPanasonicBitMark = 432;
-        const uint16_t kPanasonicOneSpace = 1296;
-        const uint16_t kPanasonicZeroSpace = 432;
-        const uint16_t kPanasonicAcSectionGap = 10000;
-        const uint16_t kPanasonicAcSection1Length = 8;
-        const uint32_t kPanasonicAcMessageGap = kDefaultMessageGap;        
-        */
-
         // Mitsubishi 112 bit A/C
         const uint16_t kMitsubishi112HdrMark = 3450;
         const uint16_t kMitsubishi112HdrSpace = 1696;
@@ -40,21 +30,31 @@ namespace esphome
         // Total tolerance percentage to use for matching the header mark.
         //const uint8_t  kMitsubishi112HdrMarkTolerance = 5;
         const uint16_t kMitsubishi112StateLength = 14;
+        //const uint32_t kMitsubishi112Freq = 38;
+        const uint32_t kMitsubishi112Freq = 38000;
 
         static const char *const TAG = "mitsubishi.climate";
 
         void MitsubishiClimate::setup()
         {
             climate_ir::ClimateIR::setup();
+
+            this->ac_.on();
+            this->ac_.setFan(1);
+            this->ac_.setMode(kMitsubishiAcCool);
+            this->ac_.setTemp(26);
+            //this->ac_.setVane(kMitsubishiAcVaneAuto);
+            this->ac_.setSwingV(kMitsubishi112SwingVHighest);
+            this->ac_.setSwingH(kMitsubishi112SwingHRight);            
             this->apply_state();
         }
 
         void MitsubishiClimate::transmit_state()
         {
+            ESP_LOGI(TAG, "MitsubishiClimate::transmit_state(): start");
             this->apply_state();
 
             uint8_t *message = this->ac_.getRaw();
-            uint16_t repeat = 1;
 
             sendGeneric(
                 this->transmitter_,
@@ -62,11 +62,27 @@ namespace esphome
                 kMitsubishi112BitMark, kMitsubishi112OneSpace,
                 kMitsubishi112BitMark, kMitsubishi112ZeroSpace,
                 kMitsubishi112BitMark, kMitsubishi112Gap,
-                message, kMitsubishi112StateLength, 38, false, repeat, 50);
+                message, kMitsubishi112StateLength, 
+                kMitsubishi112Freq);
+            //this->ac_.send();
+
+            ESP_LOGI(TAG, "MitsubishiClimate::transmit_state(): end");
+        }
+
+        void MitsubishiClimate::set_verticle_swing(uint8_t position)
+        {
+            this->ac_.setSwingV(position);
+        }
+
+        void MitsubishiClimate::set_horizontal_swing(uint8_t position)
+        {
+            this->ac_.setSwingH(position);
         }
 
         void MitsubishiClimate::apply_state()
         {
+            ESP_LOGI(TAG, "MitsubishiClimate::apply_state(): start");
+
             if (this->mode == climate::CLIMATE_MODE_OFF)
             {
                 this->ac_.off();
@@ -89,9 +105,6 @@ namespace esphome
                 case climate::CLIMATE_MODE_DRY:
                     this->ac_.setMode(kMitsubishi112Dry);
                     break;
-                // case climate::CLIMATE_MODE_FAN_ONLY:
-                //     this->ac_.setMode(kPanasonicAcFan);
-                //     break;
                 }
 
                 if (this->fan_mode.has_value())
@@ -115,6 +128,7 @@ namespace esphome
                         break;
                     }
                 }
+
 /*
 const uint8_t kMitsubishi112SwingVLowest =               0b101;
 const uint8_t kMitsubishi112SwingVLow =                  0b100;
@@ -134,27 +148,31 @@ const uint8_t kMitsubishi112SwingHAuto =                 0b1100;
                 switch (this->swing_mode)
                 {
                 case climate::CLIMATE_SWING_OFF:
-                    this->ac_.setSwingVertical(kMitsubishi112SwingVMiddle);
-                    this->ac_.setSwingHorizontal(kMitsubishi112SwingHMiddle);
+                    this->ac_.setSwingV(kMitsubishi112SwingVMiddle);
+                    this->ac_.setSwingH(kMitsubishi112SwingHMiddle);
                     break;
                 case climate::CLIMATE_SWING_VERTICAL:
-                    this->ac_.setSwingVertical(kMitsubishi112SwingVAuto);
-                    this->ac_.setSwingHorizontal(kMitsubishi112SwingHMiddle);
+                    this->ac_.setSwingV(kMitsubishi112SwingVAuto);
+                    this->ac_.setSwingH(kMitsubishi112SwingHMiddle);
                     break;
                 case climate::CLIMATE_SWING_HORIZONTAL:
-                    this->ac_.setSwingVertical(kMitsubishi112SwingVMiddle);
-                    this->ac_.setSwingHorizontal(kMitsubishi112SwingHAuto);
+                    this->ac_.setSwingV(kMitsubishi112SwingVMiddle);
+                    this->ac_.setSwingH(kMitsubishi112SwingHAuto);
                     break;
                 case climate::CLIMATE_SWING_BOTH:
-                    this->ac_.setSwingVertical(kMitsubishi112SwingVAuto);
-                    this->ac_.setSwingHorizontal(kMitsubishi112SwingHAuto);
+                    this->ac_.setSwingV(kMitsubishi112SwingVAuto);
+                    this->ac_.setSwingH(kMitsubishi112SwingHAuto);
                     break;
                 }
+
+                //this->ac_.setQuiet(true);
+                //this->ac_.setPower(true);
 
                 this->ac_.on();
             }
 
             ESP_LOGI(TAG, "%s", this->ac_.toString().c_str());
+            ESP_LOGI(TAG, "MitsubishiClimate::apply_state(): end");
         }
 
     } // namespace mitsubishi_general
