@@ -9,10 +9,37 @@ AUTO_LOAD = ["climate_ir", "ir_remote_base"]
 mitsubishi_ns = cg.esphome_ns.namespace("mitsubishi")
 MitsubishiClimate = mitsubishi_ns.class_("MitsubishiClimate", climate_ir.ClimateIR)
 
-CONFIG_SCHEMA = climate_ir.climate_ir_with_receiver_schema(MitsubishiClimate)
+HorizontalDirection = mitsubishi_ns.enum("HorizontalDirection")
+HorizontalDirections = {
+    "LEFT": HorizontalDirection.HORIZONTAL_DIRECTION_LEFT,
+    "MIDDLE_LEFT": HorizontalDirection.HORIZONTAL_DIRECTION_MIDDLE_LEFT,
+    "MIDDLE": HorizontalDirection.HORIZONTAL_DIRECTION_MIDDLE,
+    "MIDDLE_RIGHT": HorizontalDirection.HORIZONTAL_DIRECTION_MIDDLE_RIGHT,
+    "RIGHT": HorizontalDirection.HORIZONTAL_DIRECTION_RIGHT,
+    "SPLIT": HorizontalDirection.HORIZONTAL_DIRECTION_SPLIT,
+    #"AUTO": HorizontalDirection.HORIZONTAL_DIRECTION_AUTO,
+}
+
+VerticalDirection = mitsubishi_ns.enum("VerticalDirection")
+VerticalDirections = {
+    #"AUTO": VerticalDirection.VERTICAL_DIRECTION_AUTO,
+    "UP": VerticalDirection.VERTICAL_DIRECTION_UP,
+    "MIDDLE_UP": VerticalDirection.VERTICAL_DIRECTION_MIDDLE_UP,
+    "MIDDLE": VerticalDirection.VERTICAL_DIRECTION_MIDDLE,
+    "MIDDLE_DOWN": VerticalDirection.VERTICAL_DIRECTION_MIDDLE_DOWN,
+    "DOWN": VerticalDirection.VERTICAL_DIRECTION_DOWN,
+}
+
+CONFIG_SCHEMA = climate_ir.climate_ir_with_receiver_schema(MitsubishiClimate).extend(
+    {
+        cv.Required("horizontal_default"): cv.enum(HorizontalDirections),
+        cv.Required("vertical_default"): cv.enum(VerticalDirections),
+    }
+)
 
 async def to_code(config):
     ir_remote_base.load_ir_remote()
 
     var = await climate_ir.new_climate_ir(config)
-    #cg.add(var.set_model(config[CONF_MODEL]))
+    cg.add(var.set_horizontal_default(config["horizontal_default"]))
+    cg.add(var.set_vertical_default(config["vertical_default"]))

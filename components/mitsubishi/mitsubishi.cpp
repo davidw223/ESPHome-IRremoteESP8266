@@ -51,7 +51,6 @@ namespace esphome
 
         void MitsubishiClimate::transmit_state()
         {
-            ESP_LOGI(TAG, "MitsubishiClimate::transmit_state(): start");
             this->apply_state();
 
             uint8_t *message = this->ac_.getRaw();
@@ -64,9 +63,15 @@ namespace esphome
                 kMitsubishi112BitMark, kMitsubishi112Gap,
                 message, kMitsubishi112StateLength, 
                 kMitsubishi112Freq);
-            //this->ac_.send();
+        }
+        void MitsubishiClimate::set_horizontal_default(const HorizontalDirection direction)
+        {
+            this->default_h_direction = direction;
+        }
 
-            ESP_LOGI(TAG, "MitsubishiClimate::transmit_state(): end");
+        void MitsubishiClimate::set_vertical_default(const VerticalDirection direction)
+        {
+            this->default_v_direction = direction;
         }
 
         void MitsubishiClimate::set_verticle_swing(uint8_t position)
@@ -81,8 +86,6 @@ namespace esphome
 
         void MitsubishiClimate::apply_state()
         {
-            ESP_LOGI(TAG, "MitsubishiClimate::apply_state(): start");
-
             if (this->mode == climate::CLIMATE_MODE_OFF)
             {
                 this->ac_.off();
@@ -128,28 +131,13 @@ namespace esphome
                         break;
                     }
                 }
-
-/*
-const uint8_t kMitsubishi112SwingVLowest =               0b101;
-const uint8_t kMitsubishi112SwingVLow =                  0b100;
-const uint8_t kMitsubishi112SwingVMiddle =               0b011;
-const uint8_t kMitsubishi112SwingVHigh =                 0b010;
-const uint8_t kMitsubishi112SwingVHighest =              0b001;
-const uint8_t kMitsubishi112SwingVAuto =                 0b111;
-
-const uint8_t kMitsubishi112SwingHLeftMax =              0b0001;
-const uint8_t kMitsubishi112SwingHLeft =                 0b0010;
-const uint8_t kMitsubishi112SwingHMiddle =               0b0011;
-const uint8_t kMitsubishi112SwingHRight =                0b0100;
-const uint8_t kMitsubishi112SwingHRightMax =             0b0101;
-const uint8_t kMitsubishi112SwingHWide =                 0b1000;
-const uint8_t kMitsubishi112SwingHAuto =                 0b1100;
-*/
                 switch (this->swing_mode)
                 {
                 case climate::CLIMATE_SWING_OFF:
-                    this->ac_.setSwingV(kMitsubishi112SwingVMiddle);
-                    this->ac_.setSwingH(kMitsubishi112SwingHMiddle);
+                    this->ac_.setSwingV(this->default_v_direction);
+                    this->ac_.setSwingH(this->default_h_direction);
+                    //this->ac_.setSwingV(kMitsubishi112SwingVMiddle);
+                    //this->ac_.setSwingH(kMitsubishi112SwingHMiddle);
                     break;
                 case climate::CLIMATE_SWING_VERTICAL:
                     this->ac_.setSwingV(kMitsubishi112SwingVAuto);
@@ -164,15 +152,10 @@ const uint8_t kMitsubishi112SwingHAuto =                 0b1100;
                     this->ac_.setSwingH(kMitsubishi112SwingHAuto);
                     break;
                 }
-
-                //this->ac_.setQuiet(true);
-                //this->ac_.setPower(true);
-
                 this->ac_.on();
             }
 
             ESP_LOGI(TAG, "%s", this->ac_.toString().c_str());
-            ESP_LOGI(TAG, "MitsubishiClimate::apply_state(): end");
         }
 
     } // namespace mitsubishi_general
