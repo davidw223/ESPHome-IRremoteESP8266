@@ -32,8 +32,8 @@ VerticalDirections = {
 
 CONFIG_SCHEMA = climate_ir.climate_ir_with_receiver_schema(MitsubishiClimate).extend(
     {
-        cv.Required("horizontal_default"): cv.enum(HorizontalDirections),
-        cv.Required("vertical_default"): cv.enum(VerticalDirections),
+        cv.Optional("horizontal_default", default="MIDDLE"): cv.enum(HorizontalDirections),
+        cv.Optional("vertical_default", default="MIDDLE"): cv.enum(VerticalDirections),
     }
 )
 

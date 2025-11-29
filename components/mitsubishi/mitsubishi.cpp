@@ -39,13 +39,14 @@ namespace esphome
         {
             climate_ir::ClimateIR::setup();
 
-            this->ac_.on();
-            this->ac_.setFan(1);
+            // Default setting
+            this->ac_.off();
+            this->ac_.setFan(kMitsubishiAcFanAuto);
             this->ac_.setMode(kMitsubishiAcCool);
             this->ac_.setTemp(26);
-            //this->ac_.setVane(kMitsubishiAcVaneAuto);
-            this->ac_.setSwingV(kMitsubishi112SwingVHighest);
-            this->ac_.setSwingH(kMitsubishi112SwingHRight);            
+            this->ac_.setSwingV(kMitsubishi112SwingVMiddle);
+            this->ac_.setSwingH(kMitsubishi112SwingHMiddle);
+
             this->apply_state();
         }
 
