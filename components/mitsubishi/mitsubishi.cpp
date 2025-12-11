@@ -31,7 +31,7 @@ namespace esphome
         //const uint8_t  kMitsubishi112HdrMarkTolerance = 5;
         const uint16_t kMitsubishi112StateLength = 14;
         //const uint32_t kMitsubishi112Freq = 38;
-        const uint32_t kMitsubishi112Freq = 38000;
+        const uint32_t kMitsubishi112Freq = 38000;  // need to multiple by 1000
 
         static const char *const TAG = "mitsubishi.climate";
 
